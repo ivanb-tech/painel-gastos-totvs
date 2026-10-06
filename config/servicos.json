@@ -1,0 +1,51 @@
+{
+  "titulo": "Gastos com TOTVS",
+  "regex_servicos_pontuais": "SETUP|IMPLANTA",
+  "nome_grupo_outros": "Outros",
+  "grupos": [
+    {
+      "chave": "erp",
+      "nome": "ERP TOTVS Intera (licenças)",
+      "servicos": [
+        "INTERA BACKOFFICE COMPLETO",
+        "TOTVS INTERA MANUFATURA",
+        "TOTVS INTERA C&P"
+      ]
+    },
+    {
+      "chave": "ams",
+      "nome": "Sustentação (AMS)",
+      "servicos": [
+        "AMS RECORRENTE"
+      ]
+    },
+    {
+      "chave": "cloud",
+      "nome": "Cloud / Infraestrutura",
+      "servicos": [
+        "CLOUDINT AMBIENTE DEDICADO",
+        "CLDINT PROT CNXAD WN SQL DED",
+        "TOTVS CLOUD PROTHEUS STANDARD",
+        "CLOUDINT SETUP CLOUD"
+      ]
+    },
+    {
+      "chave": "comex",
+      "nome": "Comex",
+      "servicos": [
+        "ID APP COMEX IMP DO 1 AO 15",
+        "CLOUD TOTVS COMEX CONTEUDO",
+        "REPASSE MENSAL TOTVS COMEX CONTEUDO",
+        "SMS TOTVS COMEX CONTEUDO"
+      ]
+    },
+    {
+      "chave": "obra",
+      "nome": "Minha Obra",
+      "servicos": [
+        "APP MINHA OBRA PACK 5 DEVICE",
+        "SETUP MINHA OBRA"
+      ]
+    }
+  ]
+}

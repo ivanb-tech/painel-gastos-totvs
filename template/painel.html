@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gastos TOTVS</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f4f3f0; --surface:#fcfcfb; --border:#e4e2dc; --grid:#ebe9e4;
+  --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#7a7873;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7; --s8:#e34948;
+  --seq1:#eef5fd; --seq2:#cde2fb; --seq3:#9ec5f4; --seq4:#6da7ec;
+  --up:#b4532a; --accent:#1c5cab; --tip-bg:#0b0b0b; --tip-text:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#121211; --surface:#1a1a19; --border:#2e2e2b; --grid:#2a2a27;
+    --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#8f8e86;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+    --seq1:#1f2733; --seq2:#1c3352; --seq3:#184f95; --seq4:#1c5cab;
+    --up:#ec835a; --accent:#86b6ef; --tip-bg:#ffffff; --tip-text:#0b0b0b;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#121211; --surface:#1a1a19; --border:#2e2e2b; --grid:#2a2a27;
+  --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#8f8e86;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+  --seq1:#1f2733; --seq2:#1c3352; --seq3:#184f95; --seq4:#1c5cab;
+  --up:#ec835a; --accent:#86b6ef; --tip-bg:#ffffff; --tip-text:#0b0b0b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text-primary);font:13px/1.4 "Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.page{max-width:1360px;margin:0 auto;padding:20px 16px 24px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+h1{font-size:22px;font-weight:650;letter-spacing:-.01em}
+.sub{color:var(--text-secondary);font-size:13px;margin-top:2px}
+.meta{color:var(--text-muted);font-size:12px;text-align:right}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:10px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.kpi .lbl{font-size:12px;color:var(--text-secondary)}
+.kpi .val{font-size:24px;font-weight:650;letter-spacing:-.02em;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .note{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+.kpi .note b{color:var(--up);font-weight:600}
+.grid{display:grid;grid-template-columns:1.45fr 1fr;gap:10px;margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:1.9fr 1fr;gap:10px}
+h2{font-size:14px;font-weight:620}
+.h2sub{font-size:12px;color:var(--text-muted);margin:1px 0 10px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--text-secondary);margin-bottom:6px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:10px;height:10px;border-radius:3px;display:inline-block}
+svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{font-family:inherit}
+.axis{fill:var(--text-muted);font-size:11px}
+.vlabel{fill:var(--text-secondary);font-size:11px;font-weight:600}
+.gridline{stroke:var(--grid);stroke-width:1}
+.hit{fill:transparent;cursor:default}
+.seg{transition:opacity .12s}
+.dim .seg{opacity:.35}
+.dim .seg.on{opacity:1}
+/* ranking */
+.rank{display:flex;flex-direction:column;gap:5px}
+.rk{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,.8fr) 84px 36px;align-items:center;gap:8px;font-size:12px;padding:1px 0;border-radius:4px}
+.rk:hover{background:var(--grid)}
+.rk .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-primary)}
+.rk .bar{height:10px;background:var(--grid);border-radius:0 4px 4px 0;overflow:hidden}
+.rk .bar i{display:block;height:100%;border-radius:0 4px 4px 0}
+.rk .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--text-primary)}
+.rk .p{text-align:right;color:var(--text-muted);font-variant-numeric:tabular-nums}
+/* matrix */
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:11.5px;font-variant-numeric:tabular-nums}
+th,td{padding:4px 6px;text-align:right;white-space:nowrap}
+th{font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border);font-size:11px}
+th:first-child,td:first-child{text-align:left}
+td:first-child{max-width:220px;overflow:hidden;text-overflow:ellipsis}
+td.c{border-radius:3px}
+td.c.z{color:var(--text-muted)}
+td.c.chg{box-shadow:inset 0 -2px 0 var(--up)}
+tbody tr:hover td{outline:1px solid var(--border)}
+tr.cat td{font-weight:600;color:var(--text-secondary);font-size:11px;padding-top:7px}
+tfoot td{font-weight:650;border-top:1px solid var(--border);padding-top:6px}
+td.tot{font-weight:600}
+.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:0}
+.tnote{font-size:11px;color:var(--text-muted);margin-top:8px;display:flex;gap:14px;flex-wrap:wrap}
+.tnote i{display:inline-block;width:14px;height:8px;box-shadow:inset 0 -2px 0 var(--up);background:var(--seq2);vertical-align:-1px;margin-right:4px;border-radius:2px}
+/* bridge + insights */
+.ins{display:flex;flex-direction:column;gap:12px}
+.insights{list-style:none;display:flex;flex-direction:column;gap:7px;font-size:12.5px;color:var(--text-secondary)}
+.insights li{padding-left:12px;position:relative}
+.insights li:before{content:"";position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.insights b{color:var(--text-primary);font-weight:600}
+.reaj{width:100%;font-size:11.5px}
+.reaj td,.reaj th{padding:3px 4px}
+.reaj td.pct{color:var(--up);font-weight:600}
+#tip{position:fixed;pointer-events:none;background:var(--tip-bg);color:var(--tip-text);font-size:12px;padding:7px 9px;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.18);opacity:0;transition:opacity .08s;z-index:9;max-width:280px;line-height:1.35}
+#tip .t{font-weight:650;margin-bottom:2px}
+#tip .r{display:flex;justify-content:space-between;gap:14px;font-variant-numeric:tabular-nums}
+footer{margin-top:10px;font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}.grid,.grid2{grid-template-columns:1fr}}
+@media (max-width:520px){.kpis{grid-template-columns:1fr}.rk{grid-template-columns:minmax(0,1fr) 70px 78px 34px}}
+@media print{
+  @page{size:A4 landscape;margin:7mm}
+  body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:10.5px}
+  .page{width:1360px;max-width:none;padding:0;zoom:.53}
+  #tip{display:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div>
+      <h1 id="title">Gastos com TOTVS</h1>
+      <div class="sub" id="subtitle"></div>
+    </div>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="grid">
+    <div class="card">
+      <h2>Faturamento mensal por grupo de serviço</h2>
+      <div class="h2sub">Valor total dos itens (R$) por mês de emissão — passe o mouse para ver o detalhe</div>
+      <div class="legend" id="legend"></div>
+      <div id="monthly"></div>
+    </div>
+    <div class="card">
+      <h2>Quanto custa cada serviço</h2>
+      <div class="h2sub">Total acumulado no período e participação no gasto</div>
+      <div class="rank" id="rank"></div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <h2>Mês a mês por serviço (descrição da NF)</h2>
+      <div class="h2sub">Valor total do serviço (R$) por mês de emissão · cor mais forte = valor maior</div>
+      <div class="tbl-wrap"><table id="matrix"></table></div>
+      <div class="tnote"><span><i></i>mês em que o valor do serviço mudou (reajuste)</span><span id="partialNote"></span></div>
+    </div>
+    <div class="card ins">
+      <div>
+        <h2>Por que a mensalidade subiu</h2>
+        <div class="h2sub" id="bridgeSub"></div>
+        <div id="bridge"></div>
+      </div>
+      <div>
+        <h2>Reajustes aplicados</h2>
+        <table class="reaj" id="reaj"></table>
+      </div>
+      <div>
+        <h2>Destaques</h2>
+        <ul class="insights" id="insights"></ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Fonte: Ficha de Faturamento TOTVS Protheus (exportação .xlsx) · Valor total do item, antes de retenções (o valor dos boletos é menor por causa das retenções de impostos).</span>
+    <span id="foot"></span>
+  </footer>
+</div>
+<div id="tip"></div>
+
+<script>
+const RAW = __DATA__;
+
+/* ---------- configuração ---------- */
+const CONFIG = __CONFIG__;
+const PALETTE = ['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8'];
+const GROUPS = CONFIG.grupos.map((g,i)=>({key:g.chave,name:g.nome,color:PALETTE[i]}));
+const GROUP_OF = {};
+CONFIG.grupos.forEach(g=>(g.servicos||[]).forEach(s=>GROUP_OF[s.toUpperCase()]=g.chave));
+const OUTROS = {key:'_outros',name:CONFIG.nome_grupo_outros||'Outros',color:'--s'+Math.min(CONFIG.grupos.length+1,8)};
+const groupOf = d => GROUP_OF[d.toUpperCase()] || OUTROS.key;
+const ONEOFF_RE = new RegExp(CONFIG.regex_servicos_pontuais||'SETUP','i');
+const isOneOff = d => ONEOFF_RE.test(d);
+const MES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+/* ---------- helpers ---------- */
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const brl = (v,d=0) => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:d,maximumFractionDigits:d});
+const n0 = v => v.toLocaleString('pt-BR',{maximumFractionDigits:0});
+const k = v => v>=1000 ? (v/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil' : n0(v);
+const pct = (v,d=1) => (v*100).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d})+'%';
+const el = (tag,attrs={},html='') => {const e=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const a in attrs)e.setAttribute(a,attrs[a]);if(html)e.innerHTML=html;return e;};
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- dados ---------- */
+const rows = RAW.map(r=>{const [d,m,y]=r.em.split('/');return {...r,mk:`${y}-${m}`,mi:+m-1,y:+y,grp:groupOf(r.desc)};});
+if(rows.some(r=>r.grp===OUTROS.key)) GROUPS.push(OUTROS);
+const months = [...new Set(rows.map(r=>r.mk))].sort();
+const mLabel = mk => MES[+mk.slice(5)-1]+'/'+mk.slice(2,4);
+const lastMk = months[months.length-1];
+const maxEm = rows.reduce((a,r)=>{const t=r.em.split('/').reverse().join('');return t>a?t:a;},'');
+const maxEmFmt = maxEm.slice(6)+'/'+maxEm.slice(4,6)+'/'+maxEm.slice(0,4);
+
+// serviços recorrentes faturados no penúltimo mês e ausentes no último → mês parcial
+const prevMk = months[months.length-2];
+const svcIn = mk => new Set(rows.filter(r=>r.mk===mk).map(r=>r.desc));
+const missingLast = [...svcIn(prevMk)].filter(d=>!svcIn(lastMk).has(d) && !isOneOff(d));
+const partial = missingLast.length>0;
+
+const total = rows.reduce((a,r)=>a+r.vt,0);
+const byMonth = Object.fromEntries(months.map(m=>[m,0]));
+const byMG = {}; months.forEach(m=>{byMG[m]={};GROUPS.forEach(g=>byMG[m][g.key]=0);});
+const bySvc = {}; const svcM = {}; const svcRows = {};
+rows.forEach(r=>{
+  byMonth[r.mk]+=r.vt; byMG[r.mk][r.grp]+=r.vt;
+  bySvc[r.desc]=(bySvc[r.desc]||0)+r.vt;
+  (svcM[r.desc] ||= {})[r.mk]=(svcM[r.desc][r.mk]||0)+r.vt;
+  (svcRows[r.desc] ||= []).push(r);
+});
+const oneOff = rows.filter(r=>isOneOff(r.desc)).reduce((a,r)=>a+r.vt,0);
+const closedMonths = partial ? months.slice(0,-1) : months;
+const recurOf = mk => rows.filter(r=>r.mk===mk && !isOneOff(r.desc)).reduce((a,r)=>a+r.vt,0);
+const firstMk = months[0], refMk = closedMonths[closedMonths.length-1];
+const recFirst = recurOf(firstMk), recRef = recurOf(refMk);
+const avgClosed = closedMonths.reduce((a,m)=>a+byMonth[m],0)/closedMonths.length;
+
+// reajustes: mudança de preço unitário por serviço
+const reaj = [];
+Object.entries(svcRows).forEach(([d,rs])=>{
+  rs.sort((a,b)=>a.mk.localeCompare(b.mk));
+  for(let i=1;i<rs.length;i++){
+    if(Math.abs(rs[i].vu-rs[i-1].vu)>0.005 && rs[i].mk!==rs[i-1].mk){
+      reaj.push({desc:d,mk:rs[i].mk,from:rs[i-1].vt,to:rs[i].vt,pct:rs[i].vu/rs[i-1].vu-1});
+    }
+  }
+});
+reaj.sort((a,b)=>a.mk.localeCompare(b.mk)||b.pct-a.pct);
+const chgCells = new Set(reaj.map(r=>r.desc+'|'+r.mk));
+
+// ponte: 1º mês → mês de referência (só recorrentes)
+const svcFirst = svcIn(firstMk);
+let newSvc=0, priceUp=0; const newList=[];
+Object.keys(svcM).forEach(d=>{
+  if(isOneOff(d)) return;
+  const a=svcM[d][firstMk]||0, b=svcM[d][refMk]||0;
+  if(!a && b){
+    // serviço renomeado (mesmo código de produto) conta como reajuste, não como novo
+    const prod = svcRows[d][0].prod;
+    const renamedFrom = Object.keys(svcM).find(o=>o!==d && svcRows[o][0].prod===prod && svcM[o][firstMk]);
+    if(renamedFrom){ priceUp += b - svcM[renamedFrom][firstMk]; }
+    else { newSvc+=b; newList.push(d); }
+  } else if(a && b) priceUp+=b-a;
+});
+const dropped = recRef - recFirst - newSvc - priceUp; // serviços que deixaram de ser faturados
+
+/* ---------- header ---------- */
+const years=[...new Set(rows.map(r=>r.y))];
+document.getElementById('title').textContent = (CONFIG.titulo||'Gastos com TOTVS')+' '+(years.length===1?'em '+years[0]:years[0]+'–'+years[years.length-1]);
+document.title = (CONFIG.titulo||'Gastos TOTVS');
+const clientes=[...new Set(rows.map(r=>r.cliente).filter(Boolean))], contratos=[...new Set(rows.map(r=>r.contrato).filter(Boolean))];
+document.getElementById('subtitle').textContent=[clientes.map(c=>c.toLowerCase().replace(/(^|\s)\S/g,s=>s.toUpperCase())).join(', '), contratos.length?'contrato '+contratos.join(', '):'', 'valores por data de emissão da NF'].filter(Boolean).join(' · ');
+document.getElementById('meta').innerHTML =
+  `Período: ${mLabel(months[0])} a ${mLabel(lastMk)}${partial?' (out parcial)':''}<br>Última emissão: ${maxEmFmt} · ${rows.length} itens · ${new Set(rows.map(r=>r.nf)).size} notas fiscais`;
+
+/* ---------- KPIs ---------- */
+const topSvc = Object.entries(bySvc).sort((a,b)=>b[1]-a[1])[0];
+const kpis = [
+  {l:'Total faturado no período', v:brl(total), n:`${months.length} meses de emissão${partial?' (último parcial)':''}`},
+  {l:`Mensalidade recorrente (${mLabel(refMk)})`, v:brl(recRef), n:`<b>${recFirst?(recRef>=recFirst?'+':'')+pct(recRef/recFirst-1):'–'}</b> vs ${mLabel(firstMk)} (${brl(recFirst)})`},
+  {l:'Projeção anual no ritmo atual', v:brl(recRef*12), n:`mensalidade de ${mLabel(refMk)} × 12`},
+  {l:'Média mensal (meses fechados)', v:brl(avgClosed), n:`inclui ${brl(oneOff)} de setups pontuais`},
+  {l:'Maior serviço', v:pct(topSvc[1]/total,0), n:`${esc(topSvc[0])} · ${brl(topSvc[1])}`},
+];
+document.getElementById('kpis').innerHTML = kpis.map(x=>`<div class="card kpi"><div class="lbl">${x.l}</div><div class="val">${x.v}</div><div class="note">${x.n}</div></div>`).join('');
+
+/* ---------- tooltip ---------- */
+const tip = document.getElementById('tip');
+function showTip(e,html){tip.innerHTML=html;tip.style.opacity=1;moveTip(e);}
+function moveTip(e){const w=tip.offsetWidth,h=tip.offsetHeight;let x=e.clientX+14,y=e.clientY+14;if(x+w>innerWidth-8)x=e.clientX-w-14;if(y+h>innerHeight-8)y=e.clientY-h-14;tip.style.left=x+'px';tip.style.top=y+'px';}
+function hideTip(){tip.style.opacity=0;}
+
+/* ---------- legenda ---------- */
+document.getElementById('legend').innerHTML = GROUPS.map(g=>`<span><i class="sw" style="background:var(${g.color})"></i>${g.name}</span>`).join('');
+
+/* ---------- gráfico mensal (barras empilhadas) ---------- */
+function drawMonthly(){
+  const host=document.getElementById('monthly'); host.innerHTML='';
+  const W=Math.max(host.clientWidth,320), H=250, m={t:20,r:6,b:26,l:46};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const maxV=Math.max(...months.map(mk=>byMonth[mk]));
+  const step = maxV>40000?10000:5000; const top=Math.ceil(maxV*1.08/step)*step;
+  const y=v=>m.t+ih-(v/top)*ih;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Faturamento mensal empilhado por grupo de serviço'});
+  for(let v=0;v<=top;v+=step){
+    svg.append(el('line',{x1:m.l,x2:W-m.r,y1:y(v),y2:y(v),class:'gridline'}));
+    svg.append(el('text',{x:m.l-8,y:y(v)+4,'text-anchor':'end',class:'axis'},v?k(v):'0'));
+  }
+  const bw=iw/months.length, barW=Math.min(46,bw*0.62);
+  months.forEach((mk,i)=>{
+    const cx=m.l+bw*i+bw/2, x=cx-barW/2;
+    const gEl=el('g');
+    let acc=0; const segs=GROUPS.filter(g=>byMG[mk][g.key]>0);
+    segs.forEach((g,si)=>{
+      const v=byMG[mk][g.key]; const y0=y(acc), y1=y(acc+v); acc+=v;
+      const isTop=si===segs.length-1;
+      const gap = si>0?2:0; // 2px de respiro entre segmentos
+      const hgt=Math.max(0,y0-y1-gap);
+      const r=isTop?4:0;
+      const p = isTop
+        ? `M${x},${y0-gap} V${y1+r} Q${x},${y1} ${x+r},${y1} H${x+barW-r} Q${x+barW},${y1} ${x+barW},${y1+r} V${y0-gap} Z`
+        : `M${x},${y0-gap} V${y0-gap-hgt} H${x+barW} V${y0-gap} Z`;
+      const seg=el('path',{d:p,fill:css(g.color),class:'seg','data-g':g.key});
+      gEl.append(seg);
+    });
+    const isPart = partial && mk===lastMk;
+    svg.append(gEl);
+    svg.append(el('text',{x:cx,y:y(byMonth[mk])-6,'text-anchor':'middle',class:'vlabel'},k(byMonth[mk])+(isPart?'*':'')));
+    svg.append(el('text',{x:cx,y:H-8,'text-anchor':'middle',class:'axis'},mLabel(mk)));
+    const hit=el('rect',{x:m.l+bw*i,y:m.t,width:bw,height:ih,class:'hit'});
+    hit.addEventListener('mousemove',e=>{
+      const lines=GROUPS.filter(g=>byMG[mk][g.key]>0).slice().reverse().map(g=>`<div class="r"><span><i class="sw" style="background:var(${g.color});width:8px;height:8px;margin-right:6px"></i>${g.name}</span><span>${brl(byMG[mk][g.key],2)}</span></div>`).join('');
+      const extra = rows.filter(r=>r.mk===mk && isOneOff(r.desc)).map(r=>`<div class="r" style="opacity:.8"><span>↳ pontual: ${esc(r.desc)}</span><span>${brl(r.vt,2)}</span></div>`).join('');
+      showTip(e,`<div class="t">${mLabel(mk)}${isPart?' (parcial)':''} · ${brl(byMonth[mk],2)}</div>${lines}${extra}`);
+    });
+    hit.addEventListener('mouseleave',hideTip);
+    svg.append(hit);
+  });
+  svg.append(el('line',{x1:m.l,x2:W-m.r,y1:y(0),y2:y(0),stroke:css('--text-muted'),'stroke-width':1}));
+  host.append(svg);
+}
+
+/* ---------- ranking de serviços ---------- */
+function drawRank(){
+  const list=Object.entries(bySvc).sort((a,b)=>b[1]-a[1]); const max=list[0][1];
+  document.getElementById('rank').innerHTML=list.map(([d,v])=>{
+    const g=GROUPS.find(g=>g.key===groupOf(d));
+    return `<div class="rk" data-d="${esc(d)}"><span class="nm" title="${esc(d)}"><i class="dot" style="background:var(${g.color})"></i>${esc(d)}${isOneOff(d)?' <span style="color:var(--text-muted)">(pontual)</span>':''}</span><span class="bar"><i style="width:${(v/max*100).toFixed(1)}%;background:var(${g.color})"></i></span><span class="v">${brl(v)}</span><span class="p">${pct(v/total,0)}</span></div>`;
+  }).join('');
+  document.querySelectorAll('.rk').forEach(r=>{
+    const d=r.dataset.d;
+    r.addEventListener('mousemove',e=>{
+      const ms=Object.keys(svcM[d]).sort();
+      showTip(e,`<div class="t">${esc(d)}</div><div class="r"><span>Total</span><span>${brl(bySvc[d],2)}</span></div><div class="r"><span>Meses faturados</span><span>${ms.length}</span></div><div class="r"><span>Último valor (${mLabel(ms[ms.length-1])})</span><span>${brl(svcM[d][ms[ms.length-1]],2)}</span></div><div class="r"><span>Grupo</span><span>${GROUPS.find(g=>g.key===groupOf(d)).name}</span></div>`);
+    });
+    r.addEventListener('mouseleave',hideTip);
+  });
+}
+
+/* ---------- matriz serviço × mês ---------- */
+function drawMatrix(){
+  const tbl=document.getElementById('matrix');
+  const maxCell=Math.max(...Object.values(svcM).flatMap(o=>Object.values(o)));
+  const shade=v=>{const t=Math.sqrt(v/maxCell);return t>.75?'--seq4':t>.45?'--seq3':t>.22?'--seq2':'--seq1';};
+  let h=`<thead><tr><th>Serviço</th>${months.map(m=>`<th>${mLabel(m)}${partial&&m===lastMk?'*':''}</th>`).join('')}<th>Total</th></tr></thead><tbody>`;
+  GROUPS.forEach(g=>{
+    const svcs=Object.keys(svcM).filter(d=>groupOf(d)===g.key).sort((a,b)=>bySvc[b]-bySvc[a]);
+    if(!svcs.length) return;
+    const gt=svcs.reduce((a,d)=>a+bySvc[d],0);
+    h+=`<tr class="cat"><td><i class="dot" style="background:var(${g.color})"></i>${g.name}</td>${months.map(m=>`<td>${byMG[m][g.key]?n0(byMG[m][g.key]):''}</td>`).join('')}<td>${n0(gt)}</td></tr>`;
+    svcs.forEach(d=>{
+      h+=`<tr><td title="${esc(d)}" style="padding-left:20px">${esc(d)}</td>`;
+      months.forEach(m=>{
+        const v=svcM[d][m];
+        if(!v){h+=`<td class="c z">–</td>`;return;}
+        const sh=shade(v); const dark = sh==='--seq4'||sh==='--seq3';
+        h+=`<td class="c${chgCells.has(d+'|'+m)?' chg':''}" data-d="${esc(d)}" data-m="${m}" style="background:var(${sh});${dark?'color:#fff':''}">${n0(v)}</td>`;
+      });
+      h+=`<td class="tot">${n0(bySvc[d])}</td></tr>`;
+    });
+  });
+  h+=`</tbody><tfoot><tr><td>Total do mês</td>${months.map(m=>`<td>${n0(byMonth[m])}</td>`).join('')}<td>${n0(total)}</td></tr></tfoot>`;
+  tbl.innerHTML=h;
+  tbl.querySelectorAll('td.c:not(.z)').forEach(c=>{
+    c.addEventListener('mousemove',e=>{
+      const d=c.dataset.d,m=c.dataset.m; const its=rows.filter(r=>r.desc===d&&r.mk===m);
+      const rj=reaj.find(r=>r.desc===d&&r.mk===m);
+      showTip(e,`<div class="t">${esc(d)} · ${mLabel(m)}</div>${its.map(r=>`<div class="r"><span>NF ${r.nf} · emissão ${r.em}</span><span></span></div><div class="r"><span>${n0(r.q)} × ${brl(r.vu,2)} · vence ${r.venc}</span><span>${brl(r.vt,2)}</span></div>`).join('')}${rj?`<div class="r" style="margin-top:3px"><span>Reajuste</span><span>+${pct(rj.pct,2)}</span></div>`:''}`);
+    });
+    c.addEventListener('mouseleave',hideTip);
+  });
+  document.getElementById('partialNote').textContent = partial
+    ? `* ${mLabel(lastMk)} parcial: ainda não foram emitidos ${missingLast.length} serviços que vêm na metade do mês (${missingLast.map(s=>s.split(' ').slice(0,2).join(' ')).join(', ')}).`
+    : '';
+}
+
+/* ---------- ponte (waterfall horizontal) ---------- */
+function drawBridge(){
+  document.getElementById('bridgeSub').textContent=`Mensalidade recorrente de ${mLabel(firstMk)} para ${mLabel(refMk)} (sem setups)`;
+  const host=document.getElementById('bridge'); host.innerHTML='';
+  const steps=[
+    {l:`Mensalidade ${mLabel(firstMk)}`, v:recFirst, base:0, kind:'total'},
+    {l:'Reajustes de preço', v:priceUp, base:recFirst, kind:'up'},
+    {l:'Serviços novos', v:newSvc, base:recFirst+priceUp, kind:'up', sub:newList.join(', ')},
+  ];
+  if(Math.abs(dropped)>1) steps.push({l:'Serviços encerrados', v:dropped, base:recFirst+priceUp+newSvc, kind:'up'});
+  steps.push({l:`Mensalidade ${mLabel(refMk)}`, v:recRef, base:0, kind:'total'});
+  const W=Math.max(host.clientWidth,280), rowH=30, H=steps.length*rowH+4, lw=128, rw=86;
+  const iw=W-lw-rw; const x=v=>lw+(v/recRef)*iw*0.98;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Ponte da mensalidade recorrente'});
+  steps.forEach((s,i)=>{
+    const yy=i*rowH+6, bh=16;
+    const x0=x(Math.min(s.base,s.base+s.v)), x1=x(Math.max(s.base,s.base+s.v));
+    const fill = s.kind==='total'?css('--s1'):css('--up');
+    svg.append(el('rect',{x:x0,y:yy,width:Math.max(2,x1-x0),height:bh,rx:3,fill}));
+    if(i<steps.length-1 && s.kind!=='total' || i===0){
+      const end = s.kind==='total'? s.v : s.base+s.v;
+      svg.append(el('line',{x1:x(end),x2:x(end),y1:yy+bh,y2:yy+rowH,stroke:css('--text-muted'),'stroke-width':1}));
+    }
+    svg.append(el('text',{x:0,y:yy+12,class:'axis',style:'fill:var(--text-secondary);font-size:11.5px'},s.l));
+    svg.append(el('text',{x:W,y:yy+12,'text-anchor':'end',class:'vlabel',style:`fill:${s.kind==='total'?'var(--text-primary)':'var(--up)'}`},(s.kind==='total'?'':(s.v>=0?'+':''))+brl(s.v)));
+    if(s.sub){
+      const hit=el('rect',{x:0,y:yy-4,width:W,height:rowH,class:'hit'});
+      hit.addEventListener('mousemove',e=>showTip(e,`<div class="t">Serviços novos</div>${newList.map(d=>`<div class="r"><span>${esc(d)}</span><span>${brl(svcM[d][refMk],2)}/mês</span></div>`).join('')}`));
+      hit.addEventListener('mouseleave',hideTip); svg.append(hit);
+    }
+  });
+  host.append(svg);
+}
+
+/* ---------- reajustes + destaques ---------- */
+function drawSide(){
+  // agrupa reajustes iguais (mesmo mês e %)
+  document.getElementById('reaj').innerHTML = `<thead><tr><th>Mês</th><th style="text-align:left">Serviço</th><th>Δ R$/mês</th><th>%</th></tr></thead><tbody>`+
+    reaj.map(r=>`<tr><td>${mLabel(r.mk)}</td><td style="text-align:left;max-width:170px;overflow:hidden;text-overflow:ellipsis" title="${esc(r.desc)}">${esc(r.desc)}</td><td>+${n0(r.to-r.from)}</td><td class="pct">+${pct(r.pct,1)}</td></tr>`).join('')+`</tbody>`;
+  const grpTot=GROUPS.map(g=>({...g,v:months.reduce((a,m)=>a+byMG[m][g.key],0)})).sort((a,b)=>b.v-a.v);
+  const top2=grpTot[0], peak=months.reduce((a,m)=>byMonth[m]>byMonth[a]?m:a,months[0]);
+  const peakOne=rows.filter(r=>r.mk===peak&&isOneOff(r.desc));
+  const ins=[
+    `<b>${top2.name}</b> concentra ${pct(top2.v/total,0)} do gasto`+(grpTot[1]&&grpTot[1].v?`; com ${grpTot[1].name} chega a ${pct((top2.v+grpTot[1].v)/total,0)}.`:'.'),
+    peakOne.length?`Pico em <b>${mLabel(peak)}</b> (${brl(byMonth[peak])}) por serviços pontuais: ${peakOne.map(r=>esc(r.desc)).join(' e ')} (${brl(peakOne.reduce((a,r)=>a+r.vt,0))}).`:`Mês de maior gasto: <b>${mLabel(peak)}</b> (${brl(byMonth[peak])}).`,
+    reaj.length?`Reajustes entre <b>${pct(Math.min(...reaj.map(r=>r.pct)),1)}</b> e <b>${pct(Math.max(...reaj.map(r=>r.pct)),1)}</b>, aplicados em meses diferentes por serviço.`:'Nenhum reajuste de preço no período.',
+    newList.length?`Novo(s) serviço(s) recorrente(s): <b>${newList.map(esc).join(', ')}</b> (+${brl(newSvc)}/mês).`:'',
+    (()=>{const ren=Object.keys(svcM).filter(d=>!isOneOff(d)&&Object.keys(svcM).some(o=>o!==d&&svcRows[o][0].prod===svcRows[d][0].prod&&Object.keys(svcM[o]).sort()[0]<Object.keys(svcM[d]).sort()[0]));
+      return ren.map(d=>{const o=Object.keys(svcM).find(o=>o!==d&&svcRows[o][0].prod===svcRows[d][0].prod);return `<b>${esc(o)}</b> passou a ser faturado como <b>${esc(d)}</b> a partir de ${mLabel(Object.keys(svcM[d]).sort()[0])} (mesmo código de produto).`;}).join(' ');})(),
+    partial?(()=>{const nw=[...svcIn(lastMk)].filter(d=>!Object.keys(svcM[d]).some(m=>m<lastMk)&&!isOneOff(d));return nw.length?`Em ${mLabel(lastMk)} começou a ser faturado <b>${nw.map(esc).join(', ')}</b> (${brl(nw.reduce((a,d)=>a+svcM[d][lastMk],0))}) — novo custo a acompanhar.`:'';})():'',
+  ].filter(Boolean);
+  document.getElementById('insights').innerHTML=ins.map(s=>`<li>${s}</li>`).join('');
+  document.getElementById('foot').textContent=`Gerado em __BUILD__`;
+}
+
+function render(){drawMonthly();drawRank();drawMatrix();drawBridge();drawSide();}
+render();
+let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{drawMonthly();drawBridge();},120);});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawMonthly();drawBridge();});
+new MutationObserver(()=>{drawMonthly();drawBridge();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+</script>
+</body>
+</html>
